@@ -1,0 +1,46 @@
+---
+- name: Install Tasks
+  hosts: all
+  become: yes
+  vars_files:
+    - "/home/user/task/nginx.vault"
+       
+  tasks:
+
+    - name: Install nginx
+      dnf:
+        name: nginx
+        state: latest
+
+    - name: Install python3-passlib
+      dnf:
+        name: python3-passlib
+        state: latest
+    
+    - name: Start nginx
+      systemd:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: Create .htpasswd
+      htpasswd:
+        path: /etc/nginx/.htpasswd
+        name: "{{ login }}"   
+        password: "{{ password }}"
+        hash_scheme: md5_crypt
+    - name: Add nginx conf to server
+      template:
+        src: nginx_conf.j2
+        dest: /etc/nginx/nginx.conf
+      notify:
+        - restart nginx
+    - name: Welcome to the secret page
+      copy:
+        content: "Welcome to the secret page"
+        dest: /usr/share/nginx/html/index.html
+  handlers:
+    - name: restart nginx
+      systemd:
+        name: nginx
+        state: restarted
