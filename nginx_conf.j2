@@ -50,9 +50,10 @@ http {
         error_page 500 502 503 504 /50x.html;
         location = /50x.html {
 	}
+
 	location / {
-		auth_basic "Restricted Access";
-        auth_basic_user_file /path/to/.htpasswd;
+		auth_basic "Welcome to the secret page";
+        	auth_basic_user_file /etc/nginx/.htpasswd;
 	}	
     }
 
